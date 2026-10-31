@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Akkordklar</string>
+    <string name="title_activity_main">Akkordklar</string>
+    <string name="package_name">dk.akkordklar.transport</string>
+    <string name="custom_url_scheme">dk.akkordklar.transport</string>
+</resources>

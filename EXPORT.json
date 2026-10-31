@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "970cf85b6a427f8e5b6301df5e4f2a390e3d9af5",
+  "appVersion": "2.0.0",
+  "liveURL": "https://akkordklar-transport-ven.renels.chatgpt.site",
+  "testsPassed": 107,
+  "excluded": [
+    "node_modules",
+    "Git history",
+    "build caches",
+    "signing material"
+  ]
+}

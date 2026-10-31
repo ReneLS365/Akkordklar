@@ -1,0 +1,10 @@
+{
+	"appId": "dk.akkordklar.transport",
+	"appName": "Akkordklar",
+	"webDir": "dist",
+	"backgroundColor": "#132b43",
+	"packageClassList": [
+		"SharePlugin",
+		"FilesystemPlugin"
+	]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "akkordklar-transport",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Visuel HP3 transportberegner til Android, iOS og web",
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check.mjs",
+    "native:add:android": "cap add android",
+    "native:add:ios": "cap add ios",
+    "native:sync": "npm run build:bridge && cap sync",
+    "native:android": "cap open android",
+    "native:ios": "cap open ios",
+    "build:bridge": "node scripts/build-native-bridge.mjs"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "esbuild": "^0.25.0"
+  }
+}

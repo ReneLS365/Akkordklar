@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="da">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#132b43">
+  <meta name="description" content="Beregn stilladstillæg med synlige ruter, lette forklaringer og regnestykker efter HP3 Provinsen. Transport, højde, tag, telt, omlæsning, eftermontage, kørsel og flytning.">
+  <title>Akkordklar · Kend dit tillæg</title>
+  <link rel="icon" type="image/svg+xml" href="./icon.svg">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip" href="#main">Spring til beregner</a>
+  <aside class="sidebar">
+    <a class="brand" href="#transport" aria-label="Akkordklar forside"><span class="brandmark"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 25V7m18 18V7M7 11h18M7 21h18M7 21l18-10" stroke="currentColor" stroke-width="2.6" stroke-linecap="square"/></svg></span><span>Akkordklar<small>KEND DIT TILLÆG</small></span></a>
+    <div class="nav-label">BEREGNERE</div>
+    <nav id="desktop-nav" aria-label="Appens faner"></nav>
+    <div class="sidebar-bottom"><span class="dot"></span> Dine tal bliver på enheden<small>HP3 · Provinsen · 2026-satser</small><button class="plain-light" data-action="install">Installér / brug på telefonen <span>↗</span></button></div>
+  </aside>
+  <div class="app-shell">
+    <header class="topbar"><a class="mobile-brand" href="#transport"><span class="mini-mark">A</span>Akkordklar</a><div class="breadcrumb">DIT VÆRKTØJ <span>/</span> <strong id="breadcrumb-name">Transport</strong></div><div class="top-actions"><span class="version-chip">HP3 PROVINSEN <b>2026</b></span><button class="icon-button theme-toggle" data-action="theme" title="Lys / mørk visning" aria-label="Skift visning">☾</button><button class="icon-button" data-action="guide" title="Forklaring og kilder" aria-label="Forklaring og kilder">?</button></div></header>
+    <nav id="mobile-nav" aria-label="Appens faner på mobil"></nav>
+    <main id="main" tabindex="-1"><section class="page-intro"><div><div class="eyebrow" id="page-eyebrow">01 / TRANSPORT</div><h1 id="page-title">Din transport.<br><em>Dit tillæg.</em></h1><p id="page-description">Tegn vejen, grejet tager. Se procenten for hvert sted.</p></div><div class="intro-stamp"><span class="stamp-icon">✓</span><div>Se hele regnestykket<small>Regel · grundlag · resultat</small></div></div></section>
+      <div id="view-panel" role="tabpanel"></div>
+      <footer class="page-footer"><span>Akkordklar <span class="foot-dot">·</span> Dit arbejde. Dit overblik.</span><button class="link-button" data-action="guide">Regler & kilder ↗</button></footer>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <dialog id="help-dialog"><button class="dialog-close icon-button" data-action="close-dialog" aria-label="Luk">×</button><div id="dialog-content"></div></dialog>
+  <input id="import-file" type="file" accept="application/json,.json" hidden>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

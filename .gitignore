@@ -1,0 +1,57 @@
+# Akkordklar: dist/ contains application source and MUST remain tracked.
+node_modules/
+.npm/
+.cache/
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.keystore
+*.jks
+*.mobileprovision
+*.p8
+*.cer
+*.key
+# Capacitor / Android / iOS local/generated artifacts (preserve source projects)
+android/.gradle/
+android/local.properties
+android/**/build/
+android/build/
+android/captures/
+ios/Pods/
+ios/build/
+ios/DerivedData/
+ios/**/*.xcuserstate
+ios/**/*.xcuserdata/
+# Snapshots/exports
+*.zip
+.DS_Store
+
+# Dependencies
+node_modules/
+
+# Secrets
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+*.pem
+*.key
+*.p12
+android/local.properties
+
+# Archives
+*.zip
+
+# Generated files
+.DS_Store
