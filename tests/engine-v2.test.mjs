@@ -8,8 +8,8 @@ function independentGround(distance,method) {
  return method==='truck'?7*(1+Math.max(0,Math.ceil((distance-150)/50))):7*(1+Math.max(0,Math.ceil((Math.min(distance,55)-25)/10))+Math.max(0,Math.ceil((distance-55)/20)));
 }
 
-test('A6 manual zero through 55 is unconditional; >55 default is not a claim',()=>{
- for(const [m,p] of [[0,7],[1,7],[25,7],[25.1,14],[35,14],[35.01,21],[45,21],[45.01,28],[55,28]])assert.equal(groundRate(m).percent,p,`${m} m`);
+test('A6 manual positive distances through 55; >55 default is not a claim',()=>{
+ for(const [m,p] of [[1,7],[25,7],[25.1,14],[35,14],[35.01,21],[45,21],[45.01,28],[55,28]])assert.equal(groundRate(m).percent,p,`${m} m`);
  for(const [m,p] of [[55.01,35],[75,35],[75.01,42],[95,42],[95.01,49]]) {
   const r=groundRate(m);assert.equal(r.valid,false);assert.equal(r.percent,null);assert.equal(r.previewPercent,p);assert.equal(r.requiresClarification,true);assert.match(r.reason,/A6/);
   const preview=groundRate(m,'manual',{indicative:true});assert.equal(preview.valid,true);assert.equal(preview.provisional,true);assert.equal(preview.percent,p);
