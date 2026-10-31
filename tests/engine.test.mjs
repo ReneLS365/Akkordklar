@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {groundRate,scaffoldRate,calculateTransport,houseZones,weightedResult,uniformEstimate,routeDistance,toCm} from '../dist/engine.mjs';
 
 test('A6 ground boundary values including started intervals',()=>{
-  for(const method of ['wheels'])for(const [m,pct] of [[0,7],[25,7],[25.01,14],[35,14],[35.01,21],[45,21],[45.01,28],[55,28],[55.01,35],[75,35],[75.01,42],[95,42],[95.01,49]]) assert.equal(groundRate(m,method).percent,pct,`${m} m / ${method}`);
+  for(const method of ['wheels'])for(const [m,pct] of [[25,7],[25.01,14],[35,14],[35.01,21],[45,21],[45.01,28],[55,28],[55.01,35],[75,35],[75.01,42],[95,42],[95.01,49]]) assert.equal(groundRate(m,method).percent,pct,`${m} m / ${method}`);
 });
 test('A7 truck: 150 then started 50 m',()=>{
   for(const [m,pct] of [[0,7],[150,7],[150.01,14],[200,14],[200.01,21],[250,21]]) assert.equal(groundRate(m,'truck').percent,pct);

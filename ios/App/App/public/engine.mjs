@@ -4,8 +4,8 @@
  * Alle T-procenter er additive af fulde T-berettigede G, også ved demontage.
  * Geometrien er en dokumenteret fordelingsmodel, ikke en selvstændig aftaleregel.
  */
-export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0 · 31.10.2026';
-export const SOURCE_URL = 'https://www.danskindustri.dk/globalassets/brancher/di-byggeri/priskurant-privinsen-opdateret-stk-priser-pr-1.-januar-2025.pdf';
+export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.1 · 31.10.2026';
+export const SOURCE_URL = './sources/HP3-Provinsen-2026.pdf';
 export const TRANSPORT_REFS = 'HP3 A6–A8, A18, A31 · pkt. 27 · fig. C1–C6 · Hvidbog A6–A8, A18';
 const EPS = 1e-7;
 const MANUAL_WARNING = 'Uden hjul over 55 m: A6 nævner hjul, mens pkt. 27.1.c ikke gør. Afklar metode og betaling før afregning; A8 kræver særskilt akkordering ved specielle forhold. Hvidbog A8 beskriver APV ved ekstraordinære forhold.';
@@ -30,6 +30,7 @@ function groundCm(cm, method, options={}) {
     return {percent:7+extra,base:7,extra,valid:true};
   }
   if(!['manual','wheels'].includes(method))throw new Error('Vælg håndkraft, hjul eller truck.');
+  if(cm===0&&options.handlingConfirmed!==true)return {percent:null,base:0,extra:0,valid:false,requiresClarification:true,clarificationCode:'A6_HANDLING_UNCONFIRMED',reason:'A6: 0 m dokumenterer ikke læsning, aflæsning eller berettiget materieltransport. Bekræft den faktiske håndtering, før 7 % kan beregnes.'};
   const extra=7*(Math.max(0,Math.ceil((Math.min(cm,5500)-2500)/1000))+Math.max(0,Math.ceil((cm-5500)/2000)));
   const previewPercent=7+extra;
   if(method==='manual'&&cm>5500) {
@@ -70,14 +71,14 @@ function resultCm(config,legs,groundCmValue,scaffoldCmValue) {
   const allDirect=legs.source==='direct'&&groundCmValue===0&&activeScaffold===0;
   if(legs.source==='direct'&&!allDirect) {
     if(agreed!==null)return {...common,valid:true,percent:agreed,groundPercent:null,scaffoldPercent:null,reloadPercent:0,agreedIncludesReload:!!reload,agreed:true,agreementNote:config.agreementNote,warning:'A18: Aftalt samlet T-sats for det beskrevne resttransportforløb; eventuel omlæsning er indeholdt. Kranens direkte montageafstand er ikke transportgrundlag.'};
-    const preview=groundCm(groundCmValue,method,{...config,indicative:true}),previewPercent=preview.percent+add+(reload?7:0);
+    const preview=groundCm(groundCmValue,method,{...config,indicative:true,handlingConfirmed:true}),previewPercent=preview.percent+add+(reload?7:0);
     const warning=DIRECT_REMAINDER_WARNING+(preview.warning?` ${preview.warning}`:'');
     return {...common,valid:config.indicative===true,percent:config.indicative===true?previewPercent:null,
       previewPercent,groundPercent:preview.percent,scaffoldPercent:add,provisional:config.indicative===true,
       requiresClarification:true,clarificationCode:'A18_REMAINING_TRANSPORT',warning,reason:warning};
   }
-  const b=allDirect?{valid:true,percent:0,base:0,extra:0}:groundCm(groundCmValue,method,config);
-  if(!b.valid)return {...common,...b,groundPercent:null,scaffoldPercent:add,previewPercent:b.previewPercent+add+(reload?7:0)};
+  const b=allDirect?{valid:true,percent:0,base:0,extra:0}:groundCm(groundCmValue,method,{...config,handlingConfirmed:config.handlingConfirmed===true||activeScaffold>0});
+  if(!b.valid)return {...common,...b,groundPercent:null,scaffoldPercent:add,...(b.previewPercent!=null?{previewPercent:b.previewPercent+add+(reload?7:0)}:{})};
   // An agreedRate is the documented TOTAL for this route, not a rate to add to.
   const total=b.agreed?b.percent:b.percent+add+(reload?7:0);
   return {...common,...b,percent:total,groundPercent:b.percent,scaffoldPercent:b.agreed?0:add,
