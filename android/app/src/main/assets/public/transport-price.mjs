@@ -1,7 +1,7 @@
 import {materialPriceLine, moneyProduct} from './rule-data.mjs';
 
 function hundredths(value,label,max=1e9){
-  if(value===''||value==null||typeof value==='boolean')throw new Error(`${label} mangler.`);
+  if((typeof value==='string'&&!value.trim())||value==null||typeof value==='boolean')throw new Error(`${label} mangler.`);
   const n=typeof value==='string'?Number(value.replace(',','.')):value;
   if(!Number.isFinite(n)||n<0||n>max||Math.abs(n*100-Math.round(n*100))>1e-5)throw new Error(`${label} skal være et positivt tal eller 0 med højst to decimaler.`);
   const cents=Math.round(n*100);

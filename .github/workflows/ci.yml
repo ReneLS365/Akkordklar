@@ -16,6 +16,7 @@ jobs:
       - run: npm ci
       - run: npm run check
       - run: node --test
+      - run: npm test
       - run: npm run build:bridge
       - run: git diff --exit-code -- dist/native-bridge.mjs
       - run: git diff --check

@@ -4,7 +4,7 @@
  * Alle T-procenter er additive af fulde T-berettigede G, også ved demontage.
  * Geometrien er en dokumenteret fordelingsmodel, ikke en selvstændig aftaleregel.
  */
-export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.1 · 31.10.2026';
+export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.2 · 01.11.2026';
 export const SOURCE_URL = './sources/HP3-Provinsen-2026.pdf';
 export const TRANSPORT_REFS = 'HP3 A6–A8, A18, A31 · pkt. 27 · fig. C1–C6 · Hvidbog A6–A8, A18';
 const EPS = 1e-7;
@@ -64,7 +64,7 @@ function resultCm(config,legs,groundCmValue,scaffoldCmValue) {
   if(legs.source==='direct'&&config.directScope!=='tent')return {...common,valid:false,percent:null,reason:'A18 om kranmontage står under Teltarbejde. Ved anden kranmontage skal transport-/højdegrundlag afklares særskilt; appen overfører ikke automatisk teltreglen.'};
   const agreed=agreedPercent(config);
   if(special) {
-    if(agreed!==null)return {...common,valid:true,percent:agreed,groundPercent:agreed,scaffoldPercent:0,agreed:true,agreementNote:config.agreementNote,warning:'Aftalt samlet T-sats efter A8; satsen indeholder de beskrevne transportled og eventuel omlæsning.'};
+    if(agreed!==null)return {...common,valid:true,percent:agreed,groundPercent:agreed,scaffoldPercent:0,reloadPercent:0,agreedIncludesReload:!!reload,agreed:true,agreementNote:config.agreementNote,warning:'Aftalt samlet T-sats efter A8; satsen indeholder de beskrevne transportled og eventuel omlæsning.'};
     return {...common,valid:false,percent:null,reason:'Særlige forhold efter A8 kræver særskilt akkordering. Indtast og dokumentér den aftalte samlede sats eller brug Særskilt aftale.'};
   }
   if(method==='truck'&&legs.countedCrane>0)throw new Error('Truck/teleskoplæsser og bilens aflæsningskran må ikke tælles på samme stræk. Opgør adskilte transportstræk særskilt.');
@@ -82,6 +82,7 @@ function resultCm(config,legs,groundCmValue,scaffoldCmValue) {
   // An agreedRate is the documented TOTAL for this route, not a rate to add to.
   const total=b.agreed?b.percent:b.percent+add+(reload?7:0);
   return {...common,...b,percent:total,groundPercent:b.percent,scaffoldPercent:b.agreed?0:add,
+    ...(b.agreed?{reloadPercent:0,agreedIncludesReload:!!reload}:{}),
     ...(allDirect?{warning:'A18: Kranens montage-/demontagestræk er uden T. H halveres for kranmonterede dele. Eventuel særskilt resterende bæring skal opgøres.'}:{}),
     ...(legs.source==='external'?{externalTime:true,externalNote:'A6 / A18: indhejsning afregnes med forbrugt tid, dog ikke teltmontage. Ekstern kranførers timer holdes uden for akkorden jf. PU 06-06-2016.'}:{})};
 }
