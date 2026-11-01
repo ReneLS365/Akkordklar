@@ -38,3 +38,9 @@ Chromium/Playwright: optælling og resultat ved 360/390/430 px havde scrollWidth
 
 ## Levering
 Branch: akkordseddel-02. Live-status dokumenteres særskilt efter faktisk udgivelse; GitHub-push er ikke deployment. ZIP af det præcise commit kan hentes via GitHub Download ZIP; chatens filoutputmappe er ikke skrivbar i dette cloudmiljø.
+
+### Verificeret udgivelse
+Eksisterende live-app er opdateret til **version 6**, status **succeeded**: https://akkordklar-transport-ven.renels.chatgpt.site . Appkilde på GitHub: `68bd1d9d8d908e583cedd25381c81cada225bc59`; separat Sites-kildecommit: `2e0c393e0aa1888214f03181068f715d4de27e2f`. Deployment: `appgdep_6ae6e68ad3008191bfc96aeb123f5734`. Den opdaterede adgangskontrol viste public ved udgivelsen (revision 2); ingen adgangsindstilling er ændret af denne leverance. Første forsøg med ejerprivat udgivelse startede ingen deployment; efter genlæsning af adgang blev den korrekte offentlige udgivelsesoperation brugt.
+
+Udgivet gennem [Sites-skillen](skill://plugin_connector_1p_689987207de08191979cf68eca2941c6/sites/SKILL.md) med officiel gem-/udgivelsesproces og separat Git-synkronisering. Intet nyt site er oprettet.
+Draft-PR: https://github.com/ReneLS365/Akkordklar/pull/2 . PR'en indeholder også den foregående transportrevision, som endnu ikke er på main. Der er ikke foretaget merge. Dette efterfølgende dokumentationscommit ændrer ingen appfiler.
