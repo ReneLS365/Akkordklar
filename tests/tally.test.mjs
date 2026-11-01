@@ -2,7 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {freshTally,setQuantity,tallyResult,searchMaterials,validateTally} from '../dist/tally.mjs';
 import {MATERIALS} from '../dist/rule-data.mjs';
-import {tallyAuditMarkup} from '../dist/tally-view.mjs';
+import {tallyAuditMarkup,createTallyView,ledgerFormula} from '../dist/tally-view.mjs';
 import {backupPayload,parseBackup} from '../dist/project-store.mjs';
 const sheet=(op='montage')=>{const s=freshTally();setQuantity(s,'3e',op,20);s.areas[0].route.ground=25;return s;};
 test('HP3 2026 selected paper discrepancies and new GTH rows',()=>{
@@ -40,3 +40,26 @@ test('Backup round trip retains quantities, favorites, routes and old unrelated 
 });
 test('A35 cannot be implicitly confirmed through the count screen',()=>{const s=freshTally();setQuantity(s,'19h','montage',100);assert.equal(tallyResult(s).complete,false);s.rows[0].correctTentBasis=true;s.areas[0].route.ground=25;assert.equal(tallyResult(s).complete,true);});
 test('Invalid draft prevents using stale approved input',()=>{const s=sheet();s.draftErrors={quantity:'Ugyldigt antal'};assert.equal(tallyResult(s).complete,false);});
+test('A14 rounding clarification blocks a final tally without changing work or transport bases',()=>{
+ const s=freshTally();setQuantity(s,'1b','demontage',7);setQuantity(s,'1c','demontage',528);s.areas[0].route.ground=25;
+ const r=tallyResult(s),minimum=r.results.demontage.minimum;
+ assert.equal(minimum.priceSum,492.555);assert.equal(minimum.requiresClarification,true);
+ assert.equal(r.results.demontage.complete,true);assert.equal(r.workBase,492.56);assert.equal(r.tBase,985.11);
+ assert.equal(r.complete,false);assert.equal(r.status,'AFKLARING_KRÆVES');assert.equal(r.amount,null);assert.ok(r.warnings.includes(minimum.reason));
+ for(const q of [527,529]){setQuantity(s,'1c','demontage',q);assert.equal(tallyResult(s).complete,true);}
+});
+test('Saved full-catalog audit survives complete backup import and stays immutable',()=>{
+ const s=freshTally();for(const op of ['montage','demontage'])for(const m of MATERIALS){setQuantity(s,m.id,op,100);s.rows.at(-1).correctTentBasis=true;}
+ s.areas[0].route.ground=25;s.approved=true;
+ const audit=tallyAuditMarkup(tallyResult(s));assert.ok(audit.length>100000);
+ const state={transport:{sheet:s,config:{},manual:[]},calcs:{},ledger:[],jobName:'Test',jobNotes:'',sub:{},projects:[]};
+ const previous=globalThis.document;globalThis.document={querySelector:selector=>selector==='[data-sheet-audit]'?{innerText:audit}:{}};
+ try{
+  const view=createTallyView({getState:()=>state,persist:()=>{},addLine:line=>state.ledger.push(line),toast:message=>assert.fail(message)});
+  view.handleClick({target:{closest:()=>({closest:()=>true,dataset:{sheetSave:''},hasAttribute:key=>key==='data-sheet-save'})}});
+ }finally{if(previous===undefined)delete globalThis.document;else globalThis.document=previous;}
+ assert.equal(state.ledger.length,1);state.projects=[{id:'saved',name:'Saved',data:structuredClone({...state,projects:undefined})}];delete state.projects[0].data.projects;
+ const restored=parseBackup(JSON.parse(JSON.stringify(backupPayload(state))));
+ const saved=restored.current.ledger[0];assert.equal(ledgerFormula(saved),audit);assert.equal(ledgerFormula({formula:'Historisk linje'}),'Historisk linje');assert.ok(saved.auditText.every(part=>part.length<=50000));assert.deepEqual(restored.projects[0].data.ledger[0],saved);
+ assert.equal(saved.inputs.tally.rows.length,222);setQuantity(s,'3e','montage',1);assert.equal(saved.inputs.tally.rows.find(r=>r.id==='3e:montage').quantity,100);
+});

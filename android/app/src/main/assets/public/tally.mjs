@@ -65,6 +65,7 @@ export function tallyResult(s){
    const minimum=runCalculator('minimum',{base:sum(selected.map(l=>l.fullBase)),demolition:operation==='demontage',other:sum(selected.map(l=>l.otherAmount))});
    results[operation]={...price,minimum};
    if(!price.complete||price.provisional)warnings.push(price.reason||'Vejledende sats kræver afklaring.');
+   if(!minimum.valid||minimum.requiresClarification)warnings.push(minimum.reason||'A14: minimumskontrollen kræver afklaring.');
   }
   const complete=warnings.length===0;
   return {version:TALLY_VERSION,priceVersion:PRICE_VERSION,status:complete?'beregnet':'AFKLARING_KRÆVES',complete,lines,results,warnings,
