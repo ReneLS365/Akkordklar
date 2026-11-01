@@ -4,7 +4,7 @@
  * Alle T-procenter er additive af fulde T-berettigede G, også ved demontage.
  * Geometrien er en dokumenteret fordelingsmodel, ikke en selvstændig aftaleregel.
  */
-export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.2 · 01.11.2026';
+export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.3 · 01.11.2026';
 export const SOURCE_URL = './sources/HP3-Provinsen-2026.pdf';
 export const TRANSPORT_REFS = 'HP3 A6–A8, A18, A31 · pkt. 27 · fig. C1–C6 · Hvidbog A6–A8, A18';
 const EPS = 1e-7;

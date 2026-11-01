@@ -149,7 +149,7 @@ export function moneyRatio(numeratorFactors,denominatorFactors) {
 export function materialPriceLine(input) {
   const item=MATERIALS.find(m=>m.id===(input.itemId??input.id));
   if(!item)throw new Error('Ukendt materialepost. Vælg en verificeret prisrække.');
-  if(input.quantity===''||input.quantity==null||typeof input.quantity==='boolean')throw new Error('Mængden mangler.');
+  if((typeof input.quantity==='string'&&!input.quantity.trim())||input.quantity==null||typeof input.quantity==='boolean')throw new Error('Mængden mangler.');
   const quantity=Number(String(input.quantity).replace(',','.'));
   if(!Number.isFinite(quantity)||quantity<0||quantity>1e8)throw new Error('Mængden er ugyldig.');
   let billedQuantity=quantity;

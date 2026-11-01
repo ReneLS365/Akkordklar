@@ -1,7 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {calculateTransport} from '../dist/engine.mjs';
-import {quickPriceResult} from '../dist/transport-price.mjs';
+import {quickPriceResult,housePriceResult} from '../dist/transport-price.mjs';
+import {runCalculator} from '../dist/calculators.mjs';
 import {traceMarkup} from '../dist/transport-visual.mjs';
 
 test('A8 total agreement includes reload once in both amount and explanation',()=>{
@@ -24,4 +25,34 @@ test('A6/A7 route boundaries retain full T basis in dismantling',()=>{
   assert.equal(result.workBase,500);assert.equal(result.transportBase,800);
   assert.equal(result.amount,800*pct/100);assert.equal(result.workWithTransport,550+800*pct/100);
  }
+});
+
+test('A31 cannot calculate a confirmed zero from a missing whitespace basis',()=>{
+ const result=runCalculator('reload',{base:'   '});
+ assert.equal(result.valid,false);
+ assert.match(result.reason,/Udfyld/);
+});
+
+test('Missing catalogue or custom quantity blocks the whole precise transport result',()=>{
+ const zones=[{id:'a',side:'Forside',length:1,valid:true,percent:7}];
+ const existing={itemId:'1a',quantity:10,zoneId:'a'};
+ const custom={label:'Kontrolleret materiale',ref:'Manuel prisrække fra PDF',rate:10,G:true,T:true,H:true,zoneId:'a'};
+ for(const quantity of ['', '   ', null, undefined, false])for(const material of [{itemId:'1a',zoneId:'a'},custom]){
+  const result=housePriceResult(zones,{mode:'precise',materials:[existing,{...material,quantity}]});
+  assert.equal(result.complete,false,JSON.stringify({material,quantity}));
+  assert.equal(result.amount,null);
+ }
+ const zero=housePriceResult(zones,{mode:'precise',materials:[existing,{...custom,quantity:0}]});
+ assert.equal(zero.complete,true);assert.equal(zero.amount,1.93);
+});
+
+test('Missing custom dismantling factor cannot silently remove the work G while retaining full T',()=>{
+ const zones=[{id:'a',side:'Forside',length:1,valid:true,percent:7}];
+ const material={label:'Kontrolleret materiale',ref:'Manuel prisrække fra PDF',rate:10,quantity:10,G:true,T:true,H:true,zoneId:'a'};
+ for(const demontageFactor of ['', '   ', false]){
+  const result=housePriceResult(zones,{mode:'precise',operation:'demontage',materials:[{...material,demontageFactor}]});
+  assert.equal(result.complete,false,JSON.stringify(demontageFactor));
+ }
+ const normal=housePriceResult(zones,{mode:'precise',operation:'demontage',materials:[material]});
+ assert.equal(normal.workBase,50);assert.equal(normal.base,100);assert.equal(normal.amount,7);
 });

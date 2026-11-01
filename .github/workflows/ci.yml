@@ -18,5 +18,6 @@ jobs:
       - run: node --test
       - run: npm test
       - run: npm run build:bridge
-      - run: git diff --exit-code -- dist/native-bridge.mjs
+      - run: git diff --exit-code
+      - run: node scripts/check-native-assets.mjs
       - run: git diff --check
