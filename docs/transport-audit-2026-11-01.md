@@ -8,7 +8,7 @@ Node 24.19.0, npm 11.9.0. Før ændringen rapporterede `node --test` 9 beståede
 `npm test` bruger nu eksplicit ingen procesisolering, så antal og testnavne er efterprøvelige. CI kører både den krævede `node --test` og `npm test`.
 
 ## Kilder og gennemgang
-Direkte læst: Hp3Priskurant-Provinsen (2).pdf, trykte sider 17–19 (A6–A8/A13), 21–22 (A18), 43 (pkt. 27); Hvidbog-Serviceprgetstillads.pdf, trykte sider 15–17 (A6–A8), 27–28 (A18 og PU 06-06-2016). Figurer C1–C6 i priskuranten, sider 52–57, er gennemset som billeder, ikke kun OCR. Prisudgaven for 2026 er intern/uofficiel/vejledende; dens beløb er fortsat appens aktuelle prisgrundlag. Der er ikke indført nye satser.
+Direkte læst: Hp3Priskurant-Provinsen (2).pdf, trykte sider 17–19 (A6–A8/A13), 21–22 (A18), 40 (pkt. 27); Hvidbog-Serviceprgetstillads.pdf, trykte sider 15–17 (A6–A8), 27–28 (A18 og PU 06-06-2016). Figurer C1–C6 i priskuranten, sider 52–57, er gennemset som billeder, ikke kun OCR. Prisudgaven for 2026 er intern/uofficiel/vejledende; dens beløb er fortsat appens aktuelle prisgrundlag. Der er ikke indført nye satser.
 
 Gennemgået: dist/engine.mjs, transport-price.mjs, transport-v2.mjs, transport-visual.mjs samt tilhørende tests.
 
