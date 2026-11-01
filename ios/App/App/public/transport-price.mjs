@@ -99,10 +99,13 @@ function finish(rows,{mode,operation,montageCents,workCents,extraCents,withoutT=
 function customMaterialLine(material,operation){
   if(material.G!==true&&material.G!==false)throw new Error('Angiv G/T/H for en manuelt prissat materialelinje.');
   if(!String(material.label||'').trim()||!String(material.ref||'').trim())throw new Error('En manuel materialelinje kræver navn og prisrække/regelhenvisning.');
+  if((typeof material.quantity==='string'&&!material.quantity.trim())||material.quantity==null||typeof material.quantity==='boolean')throw new Error('Materialemængden mangler.');
   const quantity=Number(String(material.quantity).replace(',','.'));
   if(!Number.isFinite(quantity)||quantity<0)throw new Error('Materialemængden er ugyldig.');
   const rate=cents(material.rate)/100;
-  const factor=operation==='demontage'?(material.mountOnly?0:Number(String(material.demontageFactor??(material.G?.5:1)).replace(',','.'))):1;
+  const factorInput=material.demontageFactor??(material.G?.5:1);
+  if(operation==='demontage'&&!material.mountOnly&&((typeof factorInput==='string'&&!factorInput.trim())||typeof factorInput==='boolean'))throw new Error('Demontagefaktoren mangler eller er ugyldig.');
+  const factor=operation==='demontage'?(material.mountOnly?0:Number(String(factorInput).replace(',','.'))):1;
   if(!Number.isFinite(factor)||factor<0||factor>1)throw new Error('Demontagefaktoren er ugyldig.');
   const fullAmount=moneyProduct(rate,quantity),workAmount=moneyProduct(rate,quantity,factor);
   return {...material,operation,fullAmount,fullBase:material.G?fullAmount:0,workAmount,

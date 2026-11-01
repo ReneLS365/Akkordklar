@@ -8,7 +8,7 @@ const select=(id,label,value,options,hint='')=>({id,label,value,options,hint,typ
 const check=(id,label,value=false,hint='')=>({id,label,value,hint,type:'checkbox'});
 const base=(hint='Skriv summen af de relevante grundpriser. Ingen andre tillæg i dette tal.')=>number('base','Grundlag for netop dette tillæg',1000,'kr.',hint);
 const r=(amount,percent,formula,explanation,extra={})=>({valid:true,amount:moneyProduct(amount),percent,formula,explanation,...extra});
-const n=(x,k)=>{const v=x[k];if(v===''||v===null||v===undefined||typeof v==='boolean')throw new Error('Udfyld alle beløbs- og målefelter.');const z=typeof v==='string'?Number(v.replace(',','.')):v;if(!Number.isFinite(z)||z<0||z>1e8)throw new Error('Brug et tal mellem 0 og 100.000.000.');return z;};
+const n=(x,k)=>{const v=x[k];if((typeof v==='string'&&!v.trim())||v===null||v===undefined||typeof v==='boolean')throw new Error('Udfyld alle beløbs- og målefelter.');const z=typeof v==='string'?Number(v.replace(',','.')):v;if(!Number.isFinite(z)||z<0||z>1e8)throw new Error('Brug et tal mellem 0 og 100.000.000.');return z;};
 const integer=(x,k)=>{const v=n(x,k);if(!Number.isInteger(v))throw new Error('Antal skal være et helt tal.');return v;};
 export const fmt=n=>new Intl.NumberFormat('da-DK',{maximumFractionDigits:2}).format(n);
 const pct=(b,p,why)=>r(moneyProduct(b,p,0.01),p,`${fmt(b)} kr. × ${fmt(p)} % = ${fmt(moneyProduct(b,p,0.01))} kr.`,why);
