@@ -28,8 +28,11 @@ jobs:
       - name: Installér Android SDK
         run: |
           echo "ANDROID_HOME=$ANDROID_HOME"
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+          SDKMGR="$(find "$ANDROID_HOME/cmdline-tools" -type f -path '*/bin/sdkmanager' | head -n 1)"
+          test -n "$SDKMGR"
+          echo "Android SDK Manager: $SDKMGR"
+          yes | "$SDKMGR" --licenses >/dev/null || true
+          "$SDKMGR" 'platforms;android-35' 'build-tools;35.0.0'
       - name: Test DiscVejr beregning
         run: |
           mkdir -p /tmp/discvejr-tests
