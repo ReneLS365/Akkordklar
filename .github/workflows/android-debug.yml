@@ -1,0 +1,79 @@
+name: Android Debug APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'android/**'
+      - 'dist/**'
+      - 'scripts/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/android-debug.yml'
+  pull_request:
+    paths:
+      - 'android/**'
+      - 'dist/**'
+      - 'scripts/**'
+      - 'capacitor.config.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/android-debug.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-debug-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - name: Install Android SDK packages
+        run: sdkmanager 'platform-tools' 'platforms;android-36' 'build-tools;35.0.0'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - name: Build bridge and synchronize Android web assets
+        run: |
+          npm run build:bridge
+          npx cap sync android
+          node scripts/check-native-assets.mjs
+          git diff --exit-code -- dist capacitor.config.json
+      - name: Build installable debug APK
+        working-directory: android
+        run: bash ./gradlew --no-daemon --stacktrace assembleDebug
+      - name: Verify APK identity, signature and bundled web assets
+        run: |
+          python3 scripts/verify-android-apk.py \
+            android/app/build/outputs/apk/debug/app-debug.apk \
+            --build-tools "$ANDROID_HOME/build-tools/35.0.0" \
+            --output "$RUNNER_TEMP/akkordklar-debug"
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: akkordklar-android-debug-${{ github.run_number }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/akkordklar-debug/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30

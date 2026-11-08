@@ -50,7 +50,10 @@ Eksisterende enhedsdata under `akkordklar-v1` bevares. Gamle beregningslinjer er
 
 ZIP-eksporten indeholder hele projektets kilde- og platformfiler. Geninstallerbare `node_modules/`, Git-historik, signeringsnøgler og buildcaches er udeladt. Installer afhængighederne med `npm ci` før native arbejde. `.openai/hosting.json` bevarer den eksisterende Site-identitet; ret ikke id'et for at udgive på det nuværende site.
 
-Der er ikke bygget, signeret eller indsendt APK/AAB/IPA. Fysisk Android-/iPhone-test og butikkernes udgivelsestrin er fortsat nødvendige; se `store/README.md`.
+En installerbar Android debug-APK bygges af workflowet **Android Debug APK** og
+kan downloades under kørslens **Artifacts**. Se [bygge- og downloadvejledning](docs/android-debug-apk.md).
+Det er ikke et releasesigneret APK/AAB/IPA- eller appbutiksforløb. Fysisk
+Android-/iPhone-test og butikkernes udgivelsestrin er fortsat nødvendige; se `store/README.md`.
 
 ## Browserkontrol før udgivelse
 
