@@ -1,0 +1,41 @@
+name: DiscVejr Android APK
+on:
+  push:
+    branches: [discvejr-widget]
+    paths:
+      - 'discvejr_android_source.tar.xz'
+      - '.github/workflows/discvejr-apk.yml'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Pak Android-kildekoden ud
+        run: tar -xJf discvejr_android_source.tar.xz
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Installér Android SDK
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Test DiscVejr beregning
+        run: |
+          mkdir -p /tmp/discvejr-tests
+          javac -d /tmp/discvejr-tests discvejr_android/app/src/main/java/dk/discvejr/widget/WeatherLogic.java discvejr_android/tests/WeatherLogicTest.java
+          java -cp /tmp/discvejr-tests dk.discvejr.widget.WeatherLogicTest
+      - name: Byg installérbar debug APK
+        working-directory: discvejr_android
+        run: gradle --no-daemon assembleDebug
+      - name: Udgiv APK som artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DiscVejr-Android-APK
+          path: discvejr_android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
