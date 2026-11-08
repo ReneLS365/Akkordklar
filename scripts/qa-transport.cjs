@@ -2,9 +2,64 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 const {mkdirSync,readFileSync}=require('node:fs');
 
+async function scaffoldToggleRegression(browser){
+ const context=await browser.newContext({viewport:{width:390,height:844}});
+ try{
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await page.goto(process.env.AKKORDKLAR_QA_URL||'http://127.0.0.1:4173');
+  const step=n=>page.locator(`.transport-steps [data-tk-step="${n}"]`).click();
+  const field=()=>page.locator('[data-tk-field="scaffold"]');
+  const amount=()=>page.locator('[data-tk-status] strong').innerText();
+  const save=()=>page.locator('[data-action="save-v2"]');
+  const state=()=>page.evaluate(()=>JSON.parse(localStorage.getItem('akkordklar-v1')));
+  await page.locator('[data-tk-level="quick"]').click();
+  await page.locator('[data-q-price="base"]').fill('1000');
+  await step(3);
+  await page.locator('[data-tk-field="stage"]').selectOption('scaffold');
+  await field().fill('');
+  assert.equal(await amount(),'—');
+  await page.locator('[data-tk-field="stage"]').selectOption('ground');
+  assert.equal(await field().count(),0);
+  assert.equal(await amount(),'70,00 kr.');
+  assert.equal((await state()).transport.quick.scaffold,'');
+  await step(4);
+  assert.equal(await save().isDisabled(),true);
+  await page.locator('[data-tk-agreed]').check();await save().click();
+  const saved=(await state()).ledger;
+  assert.equal(saved.length,1);assert.equal(saved[0].amount,70);
+  assert.equal(saved[0].inputs.route.scaffold,'');
+  await page.reload();await page.locator('.transport-workspace').waitFor();
+  assert.equal(await amount(),'70,00 kr.');assert.deepEqual((await state()).ledger,saved);
+  await step(3);await page.locator('[data-tk-field="stage"]').selectOption('scaffold');
+  assert.equal(await field().inputValue(),'');assert.equal(await amount(),'—');
+  await step(4);assert.equal(await save().count(),0);
+  await step(3);await field().fill('-1');assert.equal(await amount(),'—');
+  await page.locator('[data-tk-field="stage"]').selectOption('ground');
+  assert.equal(await amount(),'70,00 kr.');assert.equal((await state()).transport.quick.scaffold,'-1');
+  await page.locator('[data-tk-field="stage"]').selectOption('scaffold');
+  assert.equal(await field().inputValue(),'-1');assert.equal(await amount(),'—');
+  await field().fill('20');assert.equal(await amount(),'140,00 kr.');
+  await page.locator('[data-tk-field="stage"]').selectOption('ground');
+  assert.equal(await amount(),'70,00 kr.');
+  await step(2);await page.locator('[data-tk-method="truck"]').click();
+  await step(3);await page.locator('[data-tk-field="ground"]').fill('150.01');
+  assert.equal(await amount(),'140,00 kr.');
+  await page.locator('[data-tk-field="stage"]').selectOption('scaffold');
+  assert.equal(await field().inputValue(),'20');assert.equal(await amount(),'210,00 kr.');
+  await step(4);await page.locator('[data-tk-agreed]').check();await save().click();
+  await page.reload();await page.locator('.transport-workspace').waitFor();
+  assert.equal(await amount(),'210,00 kr.');
+  assert.deepEqual((await state()).ledger.map(row=>row.amount),[70,210]);
+  assert.deepEqual((await state()).ledger[0],saved[0]);assert.deepEqual(errors,[]);
+  console.log('PASS: P2 stillads til/fra med tom/negativ/gyldig afstand, uændrede input, korrekte tillæg og gem/genindlæs.');
+ }finally{await context.close();}
+}
+
 (async()=>{
  const browser=await chromium.launch({executablePath:process.env.AKKORDKLAR_CHROMIUM||undefined,headless:true,args:['--no-sandbox']});
  try{
+  await scaffoldToggleRegression(browser);
   const page=await browser.newPage({viewport:{width:360,height:800}}),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
   await page.goto(process.env.AKKORDKLAR_QA_URL||'http://127.0.0.1:4173');

@@ -4,7 +4,7 @@
  * Alle T-procenter er additive af fulde T-berettigede G, også ved demontage.
  * Geometrien er en dokumenteret fordelingsmodel, ikke en selvstændig aftaleregel.
  */
-export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.3 · 01.11.2026';
+export const RULE_VERSION = 'HP3 Provinsen 2026 (+2,7 %) · Hvidbog 2025 · transportmotor 2.0.4 · 08.11.2026';
 export const SOURCE_URL = './sources/HP3-Provinsen-2026.pdf';
 export const TRANSPORT_REFS = 'HP3 A6–A8, A18, A31 · pkt. 27 · fig. C1–C6 · Hvidbog A6–A8, A18';
 const EPS = 1e-7;
@@ -87,7 +87,8 @@ function resultCm(config,legs,groundCmValue,scaffoldCmValue) {
     ...(legs.source==='external'?{externalTime:true,externalNote:'A6 / A18: indhejsning afregnes med forbrugt tid, dog ikke teltmontage. Ekstern kranførers timer holdes uden for akkorden jf. PU 06-06-2016.'}:{})};
 }
 export function calculateTransport(config) {
-  const legs=transportLegs(config),s=toCm(config.scaffold??0,'Afstand på stilladset');
+  // Validate only the active leg; retain the draft value for switching back.
+  const legs=transportLegs(config),s=config.stage==='scaffold'?toCm(config.scaffold,'Afstand på stilladset'):0;
   return resultCm(config,legs,Math.round(legs.groundTotal*100),s);
 }
 export function perimeterPoint(position,length,depth) {
@@ -242,7 +243,7 @@ export function houseZones(config) {
       const manualCm=override.ground!=null?toCm(override.ground,'Rettet afstand til hejs'):actualLegs.manualGround*100;
       const revisedGround=manualCm+fixedLegs.countedCrane*100;
       if(revisedGround>1000000)throw new Error('Den rettede samlede afstand til hejs må højst være 10.000 m.');
-      const revisedScaffold=override.scaffold!=null?toCm(override.scaffold,'Rettet afstand på stilladset'):actualScaffold;
+      const revisedScaffold=stage==='scaffold'?(override.scaffold!=null?toCm(override.scaffold,'Rettet afstand på stilladset'):actualScaffold):0;
       const revisedLegs={...fixedLegs,manualGround:manualCm/100,groundTotal:revisedGround/100};
       manualResult={...resultCm(h,revisedLegs,revisedGround,revisedScaffold),manualDistance:true,distanceOverride:{...override},geometryNote:'Afstand rettet manuelt for denne zone. Skitsen viser husets geometri; de rettede mål bruges i regnestykket.'};
     }
