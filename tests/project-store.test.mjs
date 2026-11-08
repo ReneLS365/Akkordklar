@@ -6,3 +6,25 @@ test('Complete project backup retains drafts, route shares, calculations and sep
 test('Legacy ledger-only backup still imports without overwriting active drafts',()=>{const d=draft();const p=parseBackup({schema:1,ledger:d.ledger,jobName:d.jobName});assert.equal(p.legacy,true);assert.equal(p.ledger[0].amount,70);assert.equal(p.jobName,d.jobName);});
 test('Backup validation rejects executable/prototype data, broken rows and missing route state',()=>{for(const value of [{schema:3},{schema:1,ledger:[{amount:NaN}]},JSON.parse('{"schema":1,"ledger":[],"__proto__":{"polluted":true}}')])assert.throws(()=>parseBackup(value));const d=draft();delete d.transport;assert.throws(()=>validateProject(d));assert.equal({}.polluted,undefined);});
 test('Imported record IDs cannot inject markup into attributes',()=>{for(const type of ['ledger','manual']){const d=draft();const malicious='\"><img src=x onerror=alert(1)>';if(type==='ledger')d.ledger[0].id=malicious;else d.transport.manual.push({id:malicious});assert.throws(()=>validateProject(d),/ID/);}const d=draft();d.transport.pricing.materials='broken';assert.throws(()=>validateProject(d),/materialeliste/);});
+
+test('Live v7 full audit stored in legacy formula imports without rewriting historical data',()=>{
+ const state={...draft(),projects:[]};
+ const audit='Historisk akkordseddel: G/T/H og faktisk transport.\n'.repeat(3000);
+ assert.ok(audit.length>100000);
+ state.ledger[0]={...state.ledger[0],kind:'arbejdspris',formula:audit};
+ state.projects=[{id:'archive',name:'Historisk opgave',data:projectData(state)}];
+ const backup=JSON.parse(JSON.stringify(backupPayload(state))),before=JSON.stringify(backup);
+ const restored=parseBackup(backup);
+ assert.equal(restored.current.ledger[0].formula,audit);
+ assert.equal(restored.projects[0].data.ledger[0].formula,audit);
+ assert.equal(restored.current.ledger[0].amount,70);
+ assert.equal(JSON.stringify(backup),before);
+ assert.equal(parseBackup({schema:1,ledger:state.ledger}).ledger[0].formula,audit);
+});
+test('Legacy audit allowance leaves other text and overall audit limits bounded',()=>{
+ const state={...draft(),projects:[]};
+ state.jobNotes='x'.repeat(100001);
+ assert.throws(()=>parseBackup(backupPayload(state)),/langt/);
+ state.jobNotes='';state.ledger[0].formula='x'.repeat(1000001);
+ assert.throws(()=>parseBackup(backupPayload(state)),/langt/);
+});

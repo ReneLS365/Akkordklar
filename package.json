@@ -7,6 +7,7 @@
   "scripts": {
     "test": "node --test --test-isolation=none tests/*.test.mjs",
     "check": "node scripts/check.mjs",
+    "test:browser": "node scripts/qa-browser.cjs",
     "native:add:android": "cap add android",
     "native:add:ios": "cap add ios",
     "native:sync": "npm run build:bridge && cap sync",
@@ -17,12 +18,13 @@
   "dependencies": {
     "@capacitor/android": "^8.0.0",
     "@capacitor/core": "^8.0.0",
+    "@capacitor/filesystem": "^8.0.0",
     "@capacitor/ios": "^8.0.0",
-    "@capacitor/share": "^8.0.0",
-    "@capacitor/filesystem": "^8.0.0"
+    "@capacitor/share": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.25.0",
+    "playwright": "1.62.1"
   }
 }
