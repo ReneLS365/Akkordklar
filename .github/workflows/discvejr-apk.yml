@@ -3,7 +3,7 @@ on:
   push:
     branches: [discvejr-widget]
     paths:
-      - 'discvejr_android_source.tar.xz'
+      - 'discvejr-source.part*'
       - '.github/workflows/discvejr-apk.yml'
   workflow_dispatch:
 jobs:
@@ -14,7 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Pak Android-kildekoden ud
-        run: tar -xJf discvejr_android_source.tar.xz
+        run: |
+          cat discvejr-source.part0 discvejr-source.part1 | base64 -d > discvejr_android_source.tar.xz
+          echo 'ea96d452d83fa60cf7c0d47e31668de70be068097075d594b9d0834d97976dda  discvejr_android_source.tar.xz' | sha256sum -c -
+          tar -xJf discvejr_android_source.tar.xz
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
