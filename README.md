@@ -51,3 +51,16 @@ Eksisterende enhedsdata under `akkordklar-v1` bevares. Gamle beregningslinjer er
 ZIP-eksporten indeholder hele projektets kilde- og platformfiler. Geninstallerbare `node_modules/`, Git-historik, signeringsnøgler og buildcaches er udeladt. Installer afhængighederne med `npm ci` før native arbejde. `.openai/hosting.json` bevarer den eksisterende Site-identitet; ret ikke id'et for at udgive på det nuværende site.
 
 Der er ikke bygget, signeret eller indsendt APK/AAB/IPA. Fysisk Android-/iPhone-test og butikkernes udgivelsestrin er fortsat nødvendige; se `store/README.md`.
+
+## Browserkontrol før udgivelse
+
+`npm ci` installerer også den låste Playwright-version. Installér testbrowseren med
+`npx playwright install --with-deps chromium`, og kør `npm run test:browser`.
+Testkørslen starter og lukker selv en lokal server og kontrollerer transportens
+fire trin, mobilbredder, HP3-afklaringer, historiske snapshots, backup/import,
+akkordseddel, PDF og offline-genindlæsning. GitHub Actions kører samme forløb.
+En eksisterende Chromium kan vælges med `AKKORDKLAR_CHROMIUM=/sti/til/chromium`.
+PDF og skærmbillede gemmes i en midlertidig mappe eller i `AKKORDKLAR_QA_OUTPUT`.
+
+Live-hosting er fortsat særskilt fra GitHub: udgiv kun en testet, merget version
+via det eksisterende projekt-ID i `.openai/hosting.json`, og bevar siteadgangen.

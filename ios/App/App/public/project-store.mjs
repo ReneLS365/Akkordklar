@@ -4,13 +4,15 @@ export const BACKUP_SCHEMA=2;
 const keys=['transport','calcs','ledger','jobName','jobNotes','sub'];
 const validId=value=>typeof value==='string'&&/^[a-zA-Z0-9_.:-]{1,160}$/.test(value);
 export function projectData(state){return Object.fromEntries(keys.map(k=>[k,structuredClone(state[k])]));}
-export function validateTree(value,depth=0){
+export function validateTree(value,depth=0,path=[]){
  if(depth>24)throw new Error('For mange indlejrede felter i sikkerhedskopien.');
  if(value===null||typeof value==='boolean')return;
  if(typeof value==='number'){if(!Number.isFinite(value)||Math.abs(value)>1e12)throw new Error('Ugyldigt tal i filen.');return;}
- if(typeof value==='string'){if(value.length>100000)throw new Error('Et tekstfelt er for langt.');return;}
- if(Array.isArray(value)){if(value.length>10000)throw new Error('For mange poster i filen.');for(const item of value)validateTree(item,depth+1);return;}
- if(value&&typeof value==='object'){for(const [k,v] of Object.entries(value)){if(['__proto__','prototype','constructor'].includes(k))throw new Error('Ugyldigt feltnavn i filen.');validateTree(v,depth+1);}return;}
+ // Live v7 saved the entire tally audit in ledger[i].formula. Preserve those
+ // historical snapshots; new audits use bounded auditText chunks instead.
+ if(typeof value==='string'){const legacyAudit=path.at(-3)==='ledger'&&Number.isInteger(path.at(-2))&&path.at(-1)==='formula';if(value.length>(legacyAudit?1000000:100000))throw new Error('Et tekstfelt er for langt.');return;}
+ if(Array.isArray(value)){if(value.length>10000)throw new Error('For mange poster i filen.');for(const [index,item] of value.entries())validateTree(item,depth+1,[...path,index]);return;}
+ if(value&&typeof value==='object'){for(const [k,v] of Object.entries(value)){if(['__proto__','prototype','constructor'].includes(k))throw new Error('Ugyldigt feltnavn i filen.');validateTree(v,depth+1,[...path,k]);}return;}
  throw new Error('Filen indeholder ugyldige data.');
 }
 export function validateLedger(lines){
